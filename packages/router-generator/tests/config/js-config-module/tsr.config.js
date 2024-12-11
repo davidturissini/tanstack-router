@@ -1,0 +1,5 @@
+export default {
+  "disableLogging": true,
+  "routesDirectory": "./configured-routes-path",
+  "generatedRouteTree": "./routeTree.gen.ts"
+}
