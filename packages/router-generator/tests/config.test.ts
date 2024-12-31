@@ -20,7 +20,7 @@ describe('load config tests', () => {
     'should load config correctly: $folder',
     async ({ folder }) => {
       const absPath = makeFolderDir(folder)
-      const resolvedConfig = getConfig({}, absPath)
+      const resolvedConfig = await getConfig({}, absPath)
       
       expect(resolvedConfig).toEqual(
         expect.objectContaining({
