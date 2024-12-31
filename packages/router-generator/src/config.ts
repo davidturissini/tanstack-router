@@ -1,7 +1,5 @@
 import path from 'node:path'
 import { existsSync, readFileSync } from 'node:fs'
-import { pathToFileURL } from 'node:url'
-import { tsImport } from 'tsx/esm/api'
 import { z } from 'zod'
 import { virtualRootRouteSchema } from './filesystem/virtual/config'
 
@@ -74,27 +72,8 @@ type ResolveParams = {
 }
 
 export function resolveConfigPath({ configDirectory }: ResolveParams) {
-  const jsConfigPath = path.resolve(configDirectory, 'tsr.config.js');
-  const jsonConfigPath = path.resolve(configDirectory, 'tsr.config.json');
-
-  if (existsSync(jsConfigPath) === true) {
-    return jsConfigPath;
-  }
-
-  return jsonConfigPath;
+  return path.resolve(configDirectory, 'tsr.config.json')
 }
-
-const readConfig: Record<string, (path: string) => Promise<Config>> = {
-  '.json': (configFilePathJson: string) => {
-    return JSON.parse(readFileSync(configFilePathJson, 'utf-8'));
-  },
-  '.js': async (configFilePathJs: string) => {
-    const fileURL = pathToFileURL(configFilePathJs).href
-    
-    const { default: configImport } = await tsImport(fileURL, './');
-    return configImport;
-  }
-};
 
 export async function getConfig(
   inlineConfig: Partial<Config> = {},
@@ -103,25 +82,18 @@ export async function getConfig(
   if (configDirectory === undefined) {
     configDirectory = process.cwd()
   }
-  const configFilePath = resolveConfigPath({ configDirectory })
+  const configFilePathJson = resolveConfigPath({ configDirectory })
+  const exists = existsSync(configFilePathJson)
 
-  let config: Config | undefined;
+  let config: Config
 
-  if (configFilePath !== undefined) {
-    const extname = path.extname(configFilePath);
-    const configLoader = readConfig[extname];
-    if (configLoader !== undefined) {
-      const fileSystemConfig = await configLoader(configFilePath);
-
-      config = configSchema.parse({
-        ...fileSystemConfig,
-        ...inlineConfig,
-      })
-    }
-  }
-
-  if (config === undefined) {
-    config = configSchema.parse(inlineConfig);
+  if (exists) {
+    config = configSchema.parse({
+      ...JSON.parse(readFileSync(configFilePathJson, 'utf-8')),
+      ...inlineConfig,
+    })
+  } else {
+    config = configSchema.parse(inlineConfig)
   }
 
   // If typescript is disabled, make sure the generated route tree is a .js file
