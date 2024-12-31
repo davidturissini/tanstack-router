@@ -11,7 +11,7 @@ export function main() {
     .scriptName('tsr')
     .usage('$0 <cmd> [args]')
     .command('generate', 'Generate the routes for a project', async () => {
-      const config = getConfig()
+      const config = await getConfig()
       await generate(config, process.cwd())
     })
     .command(

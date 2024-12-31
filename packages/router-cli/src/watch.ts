@@ -13,8 +13,8 @@ export function watch(root: string) {
 
   let watcher = new chokidar.FSWatcher({})
 
-  const generatorWatcher = () => {
-    const config = getConfig()
+  const generatorWatcher = async () => {
+    const config = await getConfig()
 
     watcher.close()
 

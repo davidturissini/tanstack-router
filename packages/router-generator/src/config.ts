@@ -77,15 +77,11 @@ export function resolveConfigPath({ configDirectory }: ResolveParams) {
   const jsConfigPath = path.resolve(configDirectory, 'tsr.config.js');
   const jsonConfigPath = path.resolve(configDirectory, 'tsr.config.json');
 
-  if (existsSync(jsonConfigPath) === true) {
-    return jsonConfigPath;
-  }
-
   if (existsSync(jsConfigPath) === true) {
     return jsConfigPath;
   }
 
-  return undefined;
+  return jsonConfigPath;
 }
 
 const readConfig: Record<string, (path: string) => Promise<Config>> = {

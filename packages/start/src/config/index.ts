@@ -88,9 +88,9 @@ function mergeSsrOptions(options: Array<vite.SSROptions | undefined>) {
   return ssrOptions
 }
 
-export function defineConfig(
+export async function defineConfig(
   inlineConfig: TanStackStartInputConfig = {},
-): VinxiApp {
+): Promise<VinxiApp> {
   const opts = inlineConfigSchema.parse(inlineConfig)
 
   const { preset: configDeploymentPreset, ...serverOptions } =
@@ -102,7 +102,7 @@ export function defineConfig(
   const tsr = setTsrDefaults(opts.tsr)
   const appDirectory = tsr.appDirectory
 
-  const tsrConfig = getConfig(tsr)
+  const tsrConfig = await getConfig(tsr)
 
   const publicDir = opts.routers?.public?.dir || './public'
 
@@ -139,10 +139,10 @@ export function defineConfig(
         dir: publicDir,
         base: publicBase,
       },
-      withStartPlugins(
+      (await withStartPlugins(
         opts,
         'client',
-      )({
+      ))({
         name: 'client',
         type: 'client',
         target: 'browser',
@@ -179,10 +179,10 @@ export function defineConfig(
           ]
         },
       }),
-      withStartPlugins(
+      (await withStartPlugins(
         opts,
         'ssr',
-      )({
+      ))({
         name: 'ssr',
         type: 'http',
         target: 'server',
@@ -225,10 +225,10 @@ export function defineConfig(
           client: 'client',
         },
       }),
-      withStartPlugins(
+      (await withStartPlugins(
         opts,
         'server',
-      )({
+      ))({
         name: 'server',
         type: 'http',
         target: 'server',
@@ -365,8 +365,8 @@ function withPlugins(prePlugins: Array<any>, postPlugins?: Array<any>) {
   }
 }
 
-function withStartPlugins(opts: TanStackStartOutputConfig, router: RouterType) {
-  const tsrConfig = getConfig(setTsrDefaults(opts.tsr))
+async function withStartPlugins(opts: TanStackStartOutputConfig, router: RouterType) {
+  const tsrConfig = await getConfig(setTsrDefaults(opts.tsr))
   const { userConfig } = getUserViteConfig(opts.vite)
   const { userConfig: routerUserConfig } = getUserViteConfig(
     opts.routers?.[router]?.vite,

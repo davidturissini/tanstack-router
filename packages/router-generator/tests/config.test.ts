@@ -14,10 +14,10 @@ type TestCases = Array<{
 
 describe('load config tests', () => {
   it.each([
-    // {
-    //   configFile: 'tsr.config.json',
-    //   folder: 'json-config',
-    // },
+    {
+      configFile: 'tsr.config.json',
+      folder: 'json-config',
+    },
     {
       configFile: 'tsr.config.js',
       folder: 'js-config-module'
